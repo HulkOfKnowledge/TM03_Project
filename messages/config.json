@@ -1,0 +1,12 @@
+{
+  "locales": ["en", "fr", "ar"],
+  "defaultLocale": "en",
+  "pages": {
+    "*": ["common"],
+    "/login": ["auth"],
+    "/signup": ["auth"],
+    "/onboarding": ["onboarding"],
+    "/learn-dashboard": ["learning"],
+    "/card-dashboard": ["cards"]
+  }
+}

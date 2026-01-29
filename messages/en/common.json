@@ -1,0 +1,26 @@
+{
+  "app": {
+    "name": "Creduman",
+    "tagline": "Credit Education for Canadian Newcomers"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "save": "Save",
+    "cancel": "Cancel",
+    "continue": "Continue",
+    "back": "Back",
+    "next": "Next",
+    "skip": "Skip",
+    "done": "Done",
+    "logout": "Logout",
+    "profile": "Profile",
+    "settings": "Settings"
+  },
+  "nav": {
+    "home": "Home",
+    "learn": "Learn",
+    "cards": "My Cards",
+    "insights": "Insights"
+  }
+}

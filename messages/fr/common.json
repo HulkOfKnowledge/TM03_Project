@@ -1,0 +1,26 @@
+{
+  "app": {
+    "name": "Creduman",
+    "tagline": "Éducation au crédit pour les nouveaux arrivants canadiens"
+  },
+  "common": {
+    "loading": "Chargement...",
+    "error": "Une erreur s'est produite",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "continue": "Continuer",
+    "back": "Retour",
+    "next": "Suivant",
+    "skip": "Passer",
+    "done": "Terminé",
+    "logout": "Déconnexion",
+    "profile": "Profil",
+    "settings": "Paramètres"
+  },
+  "nav": {
+    "home": "Accueil",
+    "learn": "Apprendre",
+    "cards": "Mes cartes",
+    "insights": "Aperçus"
+  }
+}
