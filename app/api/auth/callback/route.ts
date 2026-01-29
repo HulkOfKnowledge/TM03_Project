@@ -71,12 +71,20 @@ export async function GET(request: NextRequest) {
 
       // If profile doesn't exist, create it
       if (profileCheckError?.code === 'PGRST116' || !existingProfile) {
+        // Extract name parts from OAuth metadata
+        const fullName = user.user_metadata?.full_name || user.user_metadata?.name || '';
+        const nameParts = fullName.split(' ');
+        const firstName = nameParts[0] || '';
+        const surname = nameParts.slice(1).join(' ') || '';
+
         const { error: createError } = await supabase
           .from('user_profiles')
           .insert({
             id: user.id,
             email: user.email!,
-            full_name: user.user_metadata?.full_name || user.user_metadata?.name || null,
+            first_name: firstName,
+            surname: surname,
+            mobile_number: null,
             preferred_language: user.user_metadata?.preferred_language || 'en',
             onboarding_completed: false,
             preferred_dashboard: 'learn',

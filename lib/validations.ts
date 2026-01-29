@@ -14,8 +14,9 @@ export const signupSchema = z.object({
     .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
     .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
     .regex(/[0-9]/, 'Password must contain at least one number'),
-  full_name: z.string().min(2, 'Name must be at least 2 characters').optional(),
-  preferred_language: z.enum(['en', 'fr', 'ar']).optional(),
+  first_name: z.string().min(2, 'First name must be at least 2 characters'),
+  surname: z.string().min(2, 'Surname must be at least 2 characters'),
+  mobile_number: z.string().regex(/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/, 'Invalid mobile number'),
 });
 
 export const loginSchema = z.object({
@@ -24,7 +25,9 @@ export const loginSchema = z.object({
 });
 
 export const updateProfileSchema = z.object({
-  full_name: z.string().min(2).optional(),
+  first_name: z.string().min(2).optional(),
+  surname: z.string().min(2).optional(),
+  mobile_number: z.string().regex(/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/, 'Invalid mobile number').optional(),
   preferred_language: z.enum(['en', 'fr', 'ar']).optional(),
   preferred_dashboard: z.enum(['learn', 'card']).optional(),
 });

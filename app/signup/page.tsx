@@ -2,10 +2,9 @@
 
 /**
  * Signup Page
- * Multi-stage signup form with social auth
- * Stage 1: Name and email
- * Stage 2: Password with strength indicator
- * Stage 3: Language preference
+ * Single-stage signup form with social auth
+ * Fields: First Name, Surname, Mobile Number, Email, Password, Confirm Password
+ * After successful signup, redirects to onboarding flow
  */
 
 import { useState, FormEvent } from 'react';
@@ -18,17 +17,15 @@ import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { createClient } from '@/lib/supabase/client';
 import { signupSchema } from '@/lib/validations';
-import { Eye, EyeOff, ChevronLeft } from 'lucide-react';
-
-type SignupStage = 1 | 2 | 3;
+import { Eye, EyeOff } from 'lucide-react';
 
 export default function SignupPage() {
-  const [stage, setStage] = useState<SignupStage>(1);
-  const [fullName, setFullName] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [surname, setSurname] = useState('');
+  const [mobileNumber, setMobileNumber] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [language, setLanguage] = useState<'en' | 'fr' | 'ar'>('en');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
@@ -77,47 +74,6 @@ export default function SignupPage() {
     'bg-emerald-500',
   ];
 
-  const handleNextStage = () => {
-    setErrors({});
-
-    if (stage === 1) {
-      if (!fullName.trim()) {
-        setErrors({ fullName: 'Full name is required' });
-        return;
-      }
-      if (!email.trim()) {
-        setErrors({ email: 'Email is required' });
-        return;
-      }
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        setErrors({ email: 'Please enter a valid email' });
-        return;
-      }
-    }
-
-    if (stage === 2) {
-      if (!password) {
-        setErrors({ password: 'Password is required' });
-        return;
-      }
-      if (password.length < 8) {
-        setErrors({ password: 'Password must be at least 8 characters' });
-        return;
-      }
-      if (password !== confirmPassword) {
-        setErrors({ confirmPassword: 'Passwords do not match' });
-        return;
-      }
-    }
-
-    setStage((prev) => (prev + 1) as SignupStage);
-  };
-
-  const handleBackStage = () => {
-    setErrors({});
-    setStage((prev) => (prev - 1) as SignupStage);
-  };
-
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -129,13 +85,20 @@ export default function SignupPage() {
       return;
     }
 
+    if (password !== confirmPassword) {
+      setErrors({ confirmPassword: 'Passwords do not match' });
+      setIsLoading(false);
+      return;
+    }
+
     try {
       // Validate all form data
       const validatedData = signupSchema.parse({
-        full_name: fullName,
+        first_name: firstName,
+        surname,
+        mobile_number: mobileNumber,
         email,
         password,
-        preferred_language: language,
       });
 
       const supabase = createClient();
@@ -149,7 +112,6 @@ export default function SignupPage() {
 
       if (existingUser) {
         setErrors({ email: 'An account with this email already exists' });
-        setStage(1);
         setIsLoading(false);
         return;
       }
@@ -160,8 +122,9 @@ export default function SignupPage() {
         password: validatedData.password,
         options: {
           data: {
-            full_name: validatedData.full_name,
-            language: validatedData.preferred_language,
+            first_name: validatedData.first_name,
+            surname: validatedData.surname,
+            mobile_number: validatedData.mobile_number,
           },
         },
       });
@@ -182,7 +145,6 @@ export default function SignupPage() {
           fieldErrors[err.path[0]] = err.message;
         });
         setErrors(fieldErrors);
-        setStage(1); // Go back to first stage if validation fails
       } else {
         const message = error instanceof Error ? error.message : 'Signup failed. Please try again.';
         setErrors({ general: message });
@@ -202,40 +164,24 @@ export default function SignupPage() {
           </p>
         </div>
 
-        {/* Progress Indicator */}
-        <div className="flex items-center justify-center space-x-2">
-          {[1, 2, 3].map((step) => (
-            <div
-              key={step}
-              className={`h-2 w-16 rounded-full transition-colors ${
-                step <= stage ? 'bg-brand' : 'bg-muted'
-              }`}
-            />
-          ))}
+        {/* Social Auth Buttons */}
+        <SocialAuthButtons
+          onGoogleClick={() => handleSocialAuth('google')}
+          onFacebookClick={() => handleSocialAuth('facebook')}
+          isLoading={isLoading}
+        />
+
+        {/* Divider */}
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t"></div>
+          </div>
+          <div className="relative flex justify-center text-sm">
+            <span className="bg-background px-2 text-muted-foreground">
+              Or continue with email
+            </span>
+          </div>
         </div>
-
-        {/* Social Auth Buttons (only on stage 1) */}
-        {stage === 1 && (
-          <>
-            <SocialAuthButtons
-              onGoogleClick={() => handleSocialAuth('google')}
-              onFacebookClick={() => handleSocialAuth('facebook')}
-              isLoading={isLoading}
-            />
-
-            {/* Divider */}
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t"></div>
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="bg-background px-2 text-muted-foreground">
-                  Or continue with email
-                </span>
-              </div>
-            </div>
-          </>
-        )}
 
         {/* General Error */}
         {errors.general && (
@@ -244,211 +190,150 @@ export default function SignupPage() {
           </div>
         )}
 
-        {/* Multi-Stage Form */}
+        {/* Signup Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Stage 1: Name and Email */}
-          {stage === 1 && (
-            <>
+          <div className="grid grid-cols-2 gap-4">
+            <Input
+              label="First Name"
+              type="text"
+              placeholder="John"
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+              error={errors.first_name}
+              required
+            />
+
+            <Input
+              label="Surname"
+              type="text"
+              placeholder="Doe"
+              value={surname}
+              onChange={(e) => setSurname(e.target.value)}
+              error={errors.surname}
+              required
+            />
+          </div>
+
+          <Input
+            label="Mobile Number"
+            type="tel"
+            placeholder="+1 (555) 123-4567"
+            value={mobileNumber}
+            onChange={(e) => setMobileNumber(e.target.value)}
+            error={errors.mobile_number}
+            required
+          />
+
+          <Input
+            label="Email"
+            type="email"
+            placeholder="you@example.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            error={errors.email}
+            required
+          />
+
+          <div className="space-y-2">
+            <div className="relative">
               <Input
-                label="Full Name"
-                type="text"
-                placeholder="John Doe"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                error={errors.fullName}
+                label="Password"
+                type={showPassword ? 'text' : 'password'}
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                error={errors.password}
                 required
               />
-
-              <Input
-                label="Email"
-                type="email"
-                placeholder="you@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                error={errors.email}
-                required
-              />
-
-              <Button
+              <button
                 type="button"
-                onClick={handleNextStage}
-                className="w-full"
-                size="lg"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-9 text-muted-foreground hover:text-foreground"
               >
-                Continue
-              </Button>
-            </>
-          )}
-
-          {/* Stage 2: Password */}
-          {stage === 2 && (
-            <>
-              <div className="space-y-2">
-                <div className="relative">
-                  <Input
-                    label="Password"
-                    type={showPassword ? 'text' : 'password'}
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    error={errors.password}
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-9 text-muted-foreground hover:text-foreground"
-                  >
-                    {showPassword ? (
-                      <EyeOff className="h-5 w-5" />
-                    ) : (
-                      <Eye className="h-5 w-5" />
-                    )}
-                  </button>
-                </div>
-
-                {/* Password Strength Indicator */}
-                {password && (
-                  <div className="space-y-1">
-                    <div className="flex space-x-1">
-                      {[0, 1, 2, 3, 4].map((level) => (
-                        <div
-                          key={level}
-                          className={`h-1 flex-1 rounded ${
-                            level < passwordStrength
-                              ? strengthColors[passwordStrength - 1]
-                              : 'bg-muted'
-                          }`}
-                        />
-                      ))}
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      Strength: {strengthLabels[passwordStrength - 1] || 'Too weak'}
-                    </p>
-                  </div>
+                {showPassword ? (
+                  <EyeOff className="h-5 w-5" />
+                ) : (
+                  <Eye className="h-5 w-5" />
                 )}
-              </div>
+              </button>
+            </div>
 
-              <div className="relative">
-                <Input
-                  label="Confirm Password"
-                  type={showConfirmPassword ? 'text' : 'password'}
-                  placeholder="••••••••"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  error={errors.confirmPassword}
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-9 text-muted-foreground hover:text-foreground"
-                >
-                  {showConfirmPassword ? (
-                    <EyeOff className="h-5 w-5" />
-                  ) : (
-                    <Eye className="h-5 w-5" />
-                  )}
-                </button>
-              </div>
-
-              <div className="flex space-x-3">
-                <Button
-                  type="button"
-                  onClick={handleBackStage}
-                  variant="outline"
-                  className="w-full"
-                  size="lg"
-                >
-                  <ChevronLeft className="mr-2 h-5 w-5" />
-                  Back
-                </Button>
-                <Button
-                  type="button"
-                  onClick={handleNextStage}
-                  className="w-full"
-                  size="lg"
-                >
-                  Continue
-                </Button>
-              </div>
-            </>
-          )}
-
-          {/* Stage 3: Language and Terms */}
-          {stage === 3 && (
-            <>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">
-                  Preferred Language
-                </label>
-                <div className="grid grid-cols-3 gap-3">
-                  {[
-                    { value: 'en', label: 'English' },
-                    { value: 'fr', label: 'Français' },
-                    { value: 'ar', label: 'العربية' },
-                  ].map((lang) => (
-                    <button
-                      key={lang.value}
-                      type="button"
-                      onClick={() => setLanguage(lang.value as 'en' | 'fr' | 'ar')}
-                      className={`rounded-lg border p-3 text-sm font-medium transition-colors ${
-                        language === lang.value
-                          ? 'border-brand bg-brand/10 text-brand'
-                          : 'border-border hover:bg-accent'
+            {/* Password Strength Indicator */}
+            {password && (
+              <div className="space-y-1">
+                <div className="flex space-x-1">
+                  {[0, 1, 2, 3, 4].map((level) => (
+                    <div
+                      key={level}
+                      className={`h-1 flex-1 rounded ${
+                        level < passwordStrength
+                          ? strengthColors[passwordStrength - 1]
+                          : 'bg-muted'
                       }`}
-                    >
-                      {lang.label}
-                    </button>
+                    />
                   ))}
                 </div>
+                <p className="text-xs text-muted-foreground">
+                  Strength: {strengthLabels[passwordStrength - 1] || 'Too weak'}
+                </p>
               </div>
+            )}
+          </div>
 
-              <div className="flex items-start space-x-2">
-                <input
-                  type="checkbox"
-                  id="terms"
-                  checked={agreedToTerms}
-                  onChange={(e) => setAgreedToTerms(e.target.checked)}
-                  className="mt-1 h-4 w-4 rounded border-border text-brand focus:ring-brand"
-                />
-                <label htmlFor="terms" className="text-sm text-muted-foreground">
-                  I agree to the{' '}
-                  <Link href="/terms" className="text-brand hover:underline">
-                    Terms of Service
-                  </Link>{' '}
-                  and{' '}
-                  <Link href="/privacy" className="text-brand hover:underline">
-                    Privacy Policy
-                  </Link>
-                </label>
-              </div>
-              {errors.terms && (
-                <p className="text-sm text-red-500">{errors.terms}</p>
+          <div className="relative">
+            <Input
+              label="Confirm Password"
+              type={showConfirmPassword ? 'text' : 'password'}
+              placeholder="••••••••"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              error={errors.confirmPassword}
+              required
+            />
+            <button
+              type="button"
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              className="absolute right-3 top-9 text-muted-foreground hover:text-foreground"
+            >
+              {showConfirmPassword ? (
+                <EyeOff className="h-5 w-5" />
+              ) : (
+                <Eye className="h-5 w-5" />
               )}
+            </button>
+          </div>
 
-              <div className="flex space-x-3">
-                <Button
-                  type="button"
-                  onClick={handleBackStage}
-                  variant="outline"
-                  className="w-full"
-                  size="lg"
-                >
-                  <ChevronLeft className="mr-2 h-5 w-5" />
-                  Back
-                </Button>
-                <Button
-                  type="submit"
-                  className="w-full"
-                  size="lg"
-                  isLoading={isLoading}
-                >
-                  Create Account
-                </Button>
-              </div>
-            </>
+          <div className="flex items-start space-x-2">
+            <input
+              type="checkbox"
+              id="terms"
+              checked={agreedToTerms}
+              onChange={(e) => setAgreedToTerms(e.target.checked)}
+              className="mt-1 h-4 w-4 rounded border-border text-brand focus:ring-brand"
+            />
+            <label htmlFor="terms" className="text-sm text-muted-foreground">
+              I agree to the{' '}
+              <Link href="/terms" className="text-brand hover:underline">
+                Terms of Service
+              </Link>{' '}
+              and{' '}
+              <Link href="/privacy" className="text-brand hover:underline">
+                Privacy Policy
+              </Link>
+            </label>
+          </div>
+          {errors.terms && (
+            <p className="text-sm text-red-500">{errors.terms}</p>
           )}
+
+          <Button
+            type="submit"
+            className="w-full"
+            size="lg"
+            isLoading={isLoading}
+          >
+            Create Account
+          </Button>
         </form>
 
         {/* Sign In Link */}

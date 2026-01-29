@@ -20,11 +20,12 @@ import {
   Check,
 } from 'lucide-react';
 
-type OnboardingStep = 1 | 2 | 3 | 4;
+type OnboardingStep = 1 | 2 | 3 | 4 | 5;
 
 export default function OnboardingPage() {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState<OnboardingStep>(1);
+  const [selectedLanguage, setSelectedLanguage] = useState<'en' | 'fr' | 'ar'>('en');
   const [selectedGoal, setSelectedGoal] = useState<'learn' | 'manage' | null>(
     null
   );
@@ -50,9 +51,14 @@ export default function OnboardingPage() {
       // Check if onboarding already completed
       const { data: profile } = await supabase
         .from('user_profiles')
-        .select('onboarding_completed, onboarding_step, preferred_dashboard')
+        .select('onboarding_completed, onboarding_step, preferred_dashboard, preferred_language')
         .eq('id', user.id)
         .single();
+
+      // Set language from profile if available
+      if (profile?.preferred_language) {
+        setSelectedLanguage(profile.preferred_language as 'en' | 'fr' | 'ar');
+      }
 
       if (profile?.onboarding_completed) {
         router.push(
@@ -107,12 +113,13 @@ export default function OnboardingPage() {
     try {
       const supabase = createClient();
 
-      // Update user profile with completion status and preferred dashboard
+      // Update user profile with completion status, language, and preferred dashboard
       await supabase
         .from('user_profiles')
         .update({
           onboarding_completed: true,
-          onboarding_step: 4,
+          onboarding_step: 5,
+          preferred_language: selectedLanguage,
           preferred_dashboard: selectedGoal === 'learn' ? 'learning' : 'card',
         })
         .eq('id', userId);
@@ -132,16 +139,21 @@ export default function OnboardingPage() {
     },
     {
       number: 2,
+      title: 'Choose Your Language',
+      subtitle: 'Select your preferred language',
+    },
+    {
+      number: 3,
       title: 'What brings you here?',
       subtitle: 'Choose your primary goal',
     },
     {
-      number: 3,
+      number: 4,
       title: 'Your Dashboard Awaits',
       subtitle: 'Here\'s what you can expect',
     },
     {
-      number: 4,
+      number: 5,
       title: 'All Set!',
       subtitle: "You're ready to begin",
     },
@@ -189,6 +201,44 @@ export default function OnboardingPage() {
         );
 
       case 2:
+        return (
+          <div className="space-y-6">
+            <div className="text-center space-y-2">
+              <h2 className="text-2xl font-bold">Choose Your Language</h2>
+              <p className="text-muted-foreground">
+                Select your preferred language for the app
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-4 max-w-2xl mx-auto">
+              {[
+                { value: 'en', label: 'English', flag: '🇨🇦' },
+                { value: 'fr', label: 'Français', flag: '🇫🇷' },
+                { value: 'ar', label: 'العربية', flag: '🇸🇦' },
+              ].map((lang) => (
+                <button
+                  key={lang.value}
+                  onClick={() => setSelectedLanguage(lang.value as 'en' | 'fr' | 'ar')}
+                  className={`p-6 rounded-lg border-2 text-center transition-all ${
+                    selectedLanguage === lang.value
+                      ? 'border-brand bg-brand/5'
+                      : 'border-border hover:border-brand/50'
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="text-4xl">{lang.flag}</span>
+                    {selectedLanguage === lang.value && (
+                      <Check className="h-6 w-6 text-brand" />
+                    )}
+                  </div>
+                  <h3 className="text-xl font-semibold">{lang.label}</h3>
+                </button>
+              ))}
+            </div>
+          </div>
+        );
+
+      case 3:
         return (
           <div className="space-y-6">
             <div className="text-center space-y-2">
@@ -249,7 +299,7 @@ export default function OnboardingPage() {
           </div>
         );
 
-      case 3:
+      case 4:
         return (
           <div className="space-y-6">
             <div className="text-center space-y-2">
@@ -358,7 +408,7 @@ export default function OnboardingPage() {
           </div>
         );
 
-      case 4:
+      case 5:
         return (
           <div className="text-center space-y-6">
             <div className="inline-flex h-20 w-20 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
@@ -453,16 +503,16 @@ export default function OnboardingPage() {
             </Button>
 
             <div className="flex space-x-3">
-              {currentStep < 4 && currentStep !== 2 && (
+              {currentStep < 5 && currentStep !== 3 && (
                 <Button onClick={handleSkip} variant="ghost">
                   Skip
                 </Button>
               )}
 
-              {currentStep < 4 ? (
+              {currentStep < 5 ? (
                 <Button
                   onClick={handleNext}
-                  disabled={currentStep === 2 && !selectedGoal}
+                  disabled={currentStep === 3 && !selectedGoal}
                   className="min-w-[100px]"
                 >
                   Next

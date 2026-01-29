@@ -14,7 +14,9 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE TABLE IF NOT EXISTS user_profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   email TEXT NOT NULL UNIQUE,
-  full_name TEXT,
+  first_name TEXT NOT NULL,
+  surname TEXT NOT NULL,
+  mobile_number TEXT,
   preferred_language TEXT NOT NULL DEFAULT 'en' CHECK (preferred_language IN ('en', 'fr', 'ar')),
   preferred_dashboard TEXT CHECK (preferred_dashboard IN ('learn', 'card')),
   onboarding_completed BOOLEAN NOT NULL DEFAULT FALSE,

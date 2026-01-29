@@ -88,7 +88,7 @@ export default function LoginPage() {
       // Fetch user profile to determine preferred dashboard
       const { data: profile, error: profileError } = await supabase
         .from('user_profiles')
-        .select('preferred_dashboard, onboarding_completed')
+        .select('preferred_dashboard, onboarding_completed, first_name')
         .eq('id', authData.user.id)
         .single();
 
