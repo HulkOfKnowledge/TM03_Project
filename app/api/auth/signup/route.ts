@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
     // const validatedData = signupSchema.parse(body);
 
     // TODO: Call Supabase auth.signUp
-    // const supabase = createClient();
+    // const supabase = await createClient();
     // const { data, error } = await supabase.auth.signUp({
     //   email: validatedData.email,
     //   password: validatedData.password,

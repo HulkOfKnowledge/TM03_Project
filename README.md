@@ -32,8 +32,8 @@ This is a **monolithic Next.js application** with a separate **Python microservi
 
 - Node.js 20+ and npm
 - Python 3.11+
-- Supabase account
-- Flinks API credentials
+- Supabase account (or local Supabase setup)
+- Flinks API credentials (optional for development)
 
 ### 1. Clone and Install Dependencies
 

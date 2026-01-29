@@ -14,6 +14,7 @@ import { createSuccessResponse, createErrorResponse } from '@/types/api.types';
 export async function GET(request: NextRequest) {
   try {
     // TODO: Get authenticated user
+    // const supabase = await createClient();
     // TODO: Fetch profile using userService
     // TODO: Return profile data
 
@@ -40,6 +41,7 @@ export async function GET(request: NextRequest) {
 export async function PATCH(request: NextRequest) {
   try {
     // TODO: Get authenticated user
+    // const supabase = await createClient();
     // TODO: Parse and validate request body
     // TODO: Update profile using userService
     // TODO: Return updated profile

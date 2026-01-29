@@ -17,6 +17,7 @@ export async function POST(request: NextRequest) {
   try {
     // TODO: Parse and validate request body
     // TODO: Call Supabase auth.signInWithPassword
+    // const supabase = await createClient();
     // TODO: Return user and session data
     // TODO: Handle errors
 

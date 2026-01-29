@@ -20,6 +20,7 @@ export async function GET(request: NextRequest) {
     // const loginId = request.nextUrl.searchParams.get('loginId');
 
     // TODO: Get authenticated user
+    // const supabase = await createClient();
     // TODO: Call flinksService.getAccounts
     // TODO: Filter for credit accounts only
     // TODO: Store accounts in database

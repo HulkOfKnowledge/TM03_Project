@@ -13,6 +13,7 @@ import { createSuccessResponse, createErrorResponse } from '@/types/api.types';
 export async function POST(request: NextRequest) {
   try {
     // TODO: Call Supabase auth.signOut
+    // const supabase = await createClient();
     // TODO: Clear cookies
     // TODO: Return success
 

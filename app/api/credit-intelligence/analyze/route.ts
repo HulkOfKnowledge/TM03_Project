@@ -19,6 +19,7 @@ import { createSuccessResponse, createErrorResponse } from '@/types/api.types';
 export async function POST(request: NextRequest) {
   try {
     // TODO: Get authenticated user
+    // const supabase = await createClient();
     // TODO: Fetch user's credit cards and data
     // TODO: Prepare payload
     // TODO: Call creditIntelligenceService.analyzeCredit

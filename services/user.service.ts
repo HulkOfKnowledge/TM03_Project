@@ -21,6 +21,7 @@ export class UserService {
    */
   async getProfile(userId: string): Promise<UserProfile | null> {
     // TODO: Implementation needed
+    // const supabase = await createClient();
     throw new Error('Not implemented');
   }
 

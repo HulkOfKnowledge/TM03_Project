@@ -17,7 +17,7 @@ import { createSuccessResponse, createErrorResponse } from '@/types/api.types';
 export async function POST(request: NextRequest) {
   try {
     // TODO: Get authenticated user
-    // const supabase = createClient();
+    // const supabase = await createClient();
     // const { data: { user }, error } = await supabase.auth.getUser();
     // if (error || !user) {
     //   return NextResponse.json(

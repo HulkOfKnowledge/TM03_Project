@@ -8,9 +8,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({
-    request: {
-      headers: request.headers,
-    },
+    request,
   });
 
   const supabase = createServerClient(
@@ -28,9 +26,7 @@ export async function updateSession(request: NextRequest) {
             ...options,
           });
           response = NextResponse.next({
-            request: {
-              headers: request.headers,
-            },
+            request,
           });
           response.cookies.set({
             name,
@@ -45,9 +41,7 @@ export async function updateSession(request: NextRequest) {
             ...options,
           });
           response = NextResponse.next({
-            request: {
-              headers: request.headers,
-            },
+            request,
           });
           response.cookies.set({
             name,
