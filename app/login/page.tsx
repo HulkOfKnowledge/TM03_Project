@@ -7,7 +7,7 @@
  * Success modal with routing to dashboard
  */
 
-import { useState, FormEvent, useEffect } from 'react';
+import { useState, FormEvent, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { AuthLayout } from '@/components/auth/AuthLayout';
@@ -20,7 +20,7 @@ import { createClient } from '@/lib/supabase/client';
 import { loginSchema } from '@/lib/validations';
 import { Eye, EyeOff } from 'lucide-react';
 
-export default function LoginPage() {
+function LoginForm() {
   const searchParams = useSearchParams();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -280,5 +280,19 @@ export default function LoginPage() {
         redirectTo={redirectTo}
       />
     </AuthLayout>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <AuthLayout carousel={<AuthCarousel />}>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand"></div>
+        </div>
+      </AuthLayout>
+    }>
+      <LoginForm />
+    </Suspense>
   );
 }
