@@ -87,7 +87,7 @@ export function Navigation() {
           {/* Logo */}
           <Link href="/" className="flex items-center">
             <Image 
-              src={darkMode ? "/Logo-dark.svg" : "/Logo.svg"}
+              src={darkMode ? "/Logo.svg" : "/Logo-dark.svg"}
               alt="Creduman Logo" 
               width={120} 
               height={32}
