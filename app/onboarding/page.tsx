@@ -101,17 +101,56 @@ export default function OnboardingPage() {
     }
   };
 
-  const handleSkip = () => {
-    handleNext();
+  const handleSkip = async () => {
+    // If on the last steps or user wants to skip entirely, complete with defaults
+    if (currentStep >= 4 || currentStep === 3) {
+      await handleCompleteWithDefaults();
+    } else {
+      handleNext();
+    }
   };
 
-  const handleComplete = async () => {
-    if (!userId || !selectedGoal) return;
+  const handleCompleteWithDefaults = async () => {
+    if (!userId) return;
 
     setIsLoading(true);
 
     try {
       const supabase = createClient();
+
+      // Use defaults if user skipped selections
+      const finalLanguage = selectedLanguage || 'en';
+      const finalDashboard = selectedGoal === 'learn' ? 'learn' : (selectedGoal === 'manage' ? 'card' : 'learn');
+
+      // Update user profile with completion status
+      await supabase
+        .from('user_profiles')
+        .update({
+          onboarding_completed: true,
+          onboarding_step: 5,
+          preferred_language: finalLanguage,
+          preferred_dashboard: finalDashboard,
+        })
+        .eq('id', userId);
+
+      // Redirect to appropriate dashboard
+      router.push(finalDashboard === 'card' ? '/card-dashboard' : '/learn-dashboard');
+    } catch (error) {
+      console.error('Failed to complete onboarding:', error);
+      setIsLoading(false);
+    }
+  };
+
+  const handleComplete = async () => {
+    if (!userId) return;
+
+    setIsLoading(true);
+
+    try {
+      const supabase = createClient();
+
+      // Use defaults if user didn't select a goal
+      const finalDashboard = selectedGoal === 'learn' ? 'learn' : (selectedGoal === 'manage' ? 'card' : 'learn');
 
       // Update user profile with completion status, language, and preferred dashboard
       await supabase
@@ -120,7 +159,7 @@ export default function OnboardingPage() {
           onboarding_completed: true,
           onboarding_step: 5,
           preferred_language: selectedLanguage,
-          preferred_dashboard: selectedGoal === 'learn' ? 'learning' : 'card',
+          preferred_dashboard: finalDashboard,
         })
         .eq('id', userId);
 
@@ -512,7 +551,6 @@ export default function OnboardingPage() {
               {currentStep < 5 ? (
                 <Button
                   onClick={handleNext}
-                  disabled={currentStep === 3 && !selectedGoal}
                   className="min-w-[100px]"
                 >
                   Next
@@ -539,7 +577,7 @@ export default function OnboardingPage() {
         title="Welcome to Creduman!"
         message="Taking you to your dashboard..."
         redirectTo={
-          selectedGoal === 'learn' ? '/learn-dashboard' : '/card-dashboard'
+          selectedGoal === 'learn' ? '/learn-dashboard' : (selectedGoal === 'manage' ? '/card-dashboard' : '/learn-dashboard')
         }
       />
     </div>

@@ -60,6 +60,23 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
+  // Check if user is accessing onboarding when already completed
+  if (request.nextUrl.pathname.startsWith('/onboarding') && user) {
+    const { data: profile } = await supabase
+      .from('user_profiles')
+      .select('onboarding_completed, preferred_dashboard')
+      .eq('id', user.id)
+      .single();
+
+    // If onboarding is completed, redirect to their dashboard
+    if (profile?.onboarding_completed) {
+      const destination = profile?.preferred_dashboard === 'card' 
+        ? '/card-dashboard' 
+        : '/learn-dashboard';
+      return NextResponse.redirect(new URL(destination, request.url));
+    }
+  }
+
   // Redirect authenticated users away from auth pages
   const authRoutes = ['/login', '/signup'];
   const isAuthRoute = authRoutes.some((route) =>
