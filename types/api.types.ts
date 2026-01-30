@@ -73,7 +73,8 @@ export interface LoginResponse {
   user: {
     id: string;
     email: string;
-    full_name: string | null;
+    first_name: string;
+    surname: string;
   };
   session: {
     access_token: string;
@@ -90,7 +91,9 @@ export interface SignupResponse extends LoginResponse {
 export interface UserProfileResponse {
   id: string;
   email: string;
-  full_name: string | null;
+  first_name: string;
+  surname: string;
+  mobile_number: string | null;
   preferred_language: string;
   preferred_dashboard: string | null;
   onboarding_completed: boolean;

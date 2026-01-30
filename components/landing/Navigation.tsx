@@ -16,7 +16,7 @@ import { ThemeToggle } from '@/components/ui/ThemeToggle';
 export function Navigation() {
   const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [user, setUser] = useState<{ id: string; email?: string; full_name?: string } | null>(null);
+  const [user, setUser] = useState<{ id: string; email?: string; first_name?: string; surname?: string } | null>(null);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [isDark, setIsDark] = useState(false);
 
@@ -45,17 +45,18 @@ export function Navigation() {
     const getUser = async () => {
       const { data: { user: authUser } } = await supabase.auth.getUser();
       if (authUser) {
-        // Get user profile for full name
+        // Get user profile for name
         const { data: profile } = await supabase
           .from('user_profiles')
-          .select('full_name')
+          .select('first_name, surname')
           .eq('id', authUser.id)
           .single();
 
         setUser({
           id: authUser.id,
           email: authUser.email,
-          full_name: profile?.full_name || undefined,
+          first_name: profile?.first_name || undefined,
+          surname: profile?.surname || undefined,
         });
       }
     };
@@ -68,7 +69,8 @@ export function Navigation() {
         setUser({
           id: session.user.id,
           email: session.user.email,
-          full_name: session.user.user_metadata?.full_name || undefined,
+          first_name: session.user.user_metadata?.first_name || undefined,
+          surname: session.user.user_metadata?.surname || undefined,
         });
       } else {
         setUser(null);
@@ -134,10 +136,10 @@ export function Navigation() {
                   className="hidden md:flex items-center space-x-2 rounded-lg px-3 py-2 hover:bg-accent transition-colors"
                 >
                   <div className="h-8 w-8 rounded-full bg-brand flex items-center justify-center text-white text-sm font-medium">
-                    {user.full_name?.[0]?.toUpperCase() || user.email?.[0]?.toUpperCase() || 'U'}
+                    {user.first_name?.[0]?.toUpperCase() || user.email?.[0]?.toUpperCase() || 'U'}
                   </div>
                   <span className="text-sm font-medium">
-                    {user.full_name || user.email?.split('@')[0] || 'User'}
+                    {user.first_name || user.email?.split('@')[0] || 'User'}
                   </span>
                 </button>
 
@@ -145,7 +147,7 @@ export function Navigation() {
                 {showUserMenu && (
                   <div className="absolute right-0 mt-2 w-56 rounded-lg border bg-background shadow-lg">
                     <div className="p-3 border-b">
-                      <p className="text-sm font-medium">{user.full_name || 'User'}</p>
+                      <p className="text-sm font-medium">{user.first_name ? `${user.first_name} ${user.surname || ''}`.trim() : 'User'}</p>
                       <p className="text-xs text-muted-foreground">{user.email}</p>
                     </div>
                     <div className="p-2">
@@ -173,7 +175,7 @@ export function Navigation() {
                   onClick={() => setShowUserMenu(!showUserMenu)}
                   className="md:hidden h-8 w-8 rounded-full bg-brand flex items-center justify-center text-white text-sm font-medium"
                 >
-                  {user.full_name?.[0]?.toUpperCase() || user.email?.[0]?.toUpperCase() || 'U'}
+                  {user.first_name?.[0]?.toUpperCase() || user.email?.[0]?.toUpperCase() || 'U'}
                 </button>
               </div>
             ) : (

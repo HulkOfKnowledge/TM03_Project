@@ -7,7 +7,9 @@
 export interface UserProfile {
   id: string; // UUID, matches auth.users.id
   email: string;
-  full_name: string | null;
+  first_name: string;
+  surname: string;
+  mobile_number: string | null;
   preferred_language: 'en' | 'fr' | 'ar';
   preferred_dashboard: 'learn' | 'card' | null;
   onboarding_completed: boolean;
@@ -19,12 +21,16 @@ export interface UserProfile {
 export interface CreateUserProfileInput {
   id: string;
   email: string;
-  full_name?: string;
+  first_name: string;
+  surname: string;
+  mobile_number?: string;
   preferred_language?: 'en' | 'fr' | 'ar';
 }
 
 export interface UpdateUserProfileInput {
-  full_name?: string;
+  first_name?: string;
+  surname?: string;
+  mobile_number?: string;
   preferred_language?: 'en' | 'fr' | 'ar';
   preferred_dashboard?: 'learn' | 'card';
   onboarding_completed?: boolean;
