@@ -226,7 +226,7 @@ function LoginForm() {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-9 text-muted-foreground hover:text-foreground"
+                className="absolute right-3 top-[51%] translate-y-[10%] text-muted-foreground hover:text-foreground flex items-center justify-center"
                 tabIndex={-1}
               >
                 {showPassword ? (

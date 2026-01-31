@@ -17,10 +17,9 @@ import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { createClient } from '@/lib/supabase/client';
 import { signupSchema } from '@/lib/validations';
-import { Eye, EyeOff, Check, ArrowLeft } from 'lucide-react';
+import { Eye, EyeOff, Check } from 'lucide-react';
 
 export default function SignupPage() {
-  const [showEmailForm, setShowEmailForm] = useState(false);
   const [firstName, setFirstName] = useState('');
   const [surname, setSurname] = useState('');
   const [mobileNumber, setMobileNumber] = useState('');
@@ -193,214 +192,183 @@ export default function SignupPage() {
           </div>
         )}
 
-        {!showEmailForm ? (
-          /* Initial View - Social Auth + Email Button */
-          <>
-            <FormSection>
-              <SocialAuthButtons
-                onGoogleClick={() => handleSocialAuth('google')}
-                onFacebookClick={() => handleSocialAuth('facebook')}
-                isLoading={isLoading}
-                actionText="Sign up with"
+        {/* Social Auth Buttons */}
+        <FormSection>
+          <SocialAuthButtons
+            onGoogleClick={() => handleSocialAuth('google')}
+            onFacebookClick={() => handleSocialAuth('facebook')}
+            isLoading={isLoading}
+            actionText="Sign up with"
+          />
+        </FormSection>
+
+        <FormDivider text="Or" />
+
+        {/* Email Signup Form */}
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Personal Information */}
+          <FormSection>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Input
+                label="First Name"
+                type="text"
+                placeholder="John"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                error={errors.first_name}
+                required
               />
-            </FormSection>
+              <Input
+                label="Surname"
+                type="text"
+                placeholder="Doe"
+                value={surname}
+                onChange={(e) => setSurname(e.target.value)}
+                error={errors.surname}
+                required
+              />
+            </div>
 
-            <FormDivider text="Or" />
-
-            <Button
-              type="button"
-              onClick={() => setShowEmailForm(true)}
-              variant="outline"
-              className="w-full"
-              size="lg"
-            >
-              <span className="text-muted-foreground text-sm">Sign up with Email</span>
-            </Button>
-
-            <FormFooter
-              text="Already have an account?"
-              linkText="Sign in"
-              linkHref="/login"
+            <Input
+              label="Mobile Number"
+              type="tel"
+              placeholder="+1 (555) 123-4567"
+              value={mobileNumber}
+              onChange={(e) => setMobileNumber(e.target.value)}
+              error={errors.mobile_number}
+              required
             />
-          </>
-        ) : (
-          /* Email Signup Form */
-          <>
-            <button
-              type="button"
-              onClick={() => setShowEmailForm(false)}
-              className="flex items-center text-xs sm:text-sm text-muted-foreground hover:text-foreground"
-            >
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to options
-            </button>
+          </FormSection>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Personal Information */}
-              <FormSection>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <Input
-                    label="First Name"
-                    type="text"
-                    placeholder="John"
-                    value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
-                    error={errors.first_name}
-                    required
-                  />
-                  <Input
-                    label="Surname"
-                    type="text"
-                    placeholder="Doe"
-                    value={surname}
-                    onChange={(e) => setSurname(e.target.value)}
-                    error={errors.surname}
-                    required
-                  />
-                </div>
+          {/* Account Information */}
+          <FormSection>
+            <Input
+              label="Email"
+              type="email"
+              placeholder="you@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              error={errors.email}
+              required
+            />
 
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="relative">
                 <Input
-                  label="Mobile Number"
-                  type="tel"
-                  placeholder="+1 (555) 123-4567"
-                  value={mobileNumber}
-                  onChange={(e) => setMobileNumber(e.target.value)}
-                  error={errors.mobile_number}
+                  label="Password"
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  error={errors.password}
                   required
                 />
-              </FormSection>
-
-              {/* Account Information */}
-              <FormSection>
-                <Input
-                  label="Email"
-                  type="email"
-                  placeholder="you@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  error={errors.email}
-                  required
-                />
-
-                <div className="space-y-3">
-                  <div className="relative">
-                    <Input
-                      label="Password"
-                      type={showPassword ? 'text' : 'password'}
-                      placeholder="••••••••"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      error={errors.password}
-                      required
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-9 text-muted-foreground hover:text-foreground"
-                      tabIndex={-1}
-                    >
-                      {showPassword ? (
-                        <EyeOff className="h-4 w-4 sm:h-5 sm:w-5" />
-                      ) : (
-                        <Eye className="h-4 w-4 sm:h-5 sm:w-5" />
-                      )}
-                    </button>
-                  </div>
-
-                  {/* Password Requirements */}
-                  {password && (
-                    <div className="space-y-2 bg-muted/50 rounded-lg p-3">
-                      {passwordRequirements.map((requirement, index) => (
-                        <div
-                          key={index}
-                          className={`flex items-center gap-2 text-xs sm:text-sm transition-colors ${
-                            requirement.met
-                              ? 'text-green-600 dark:text-green-400'
-                              : 'text-muted-foreground'
-                          }`}
-                        >
-                          <div className={`flex items-center justify-center h-4 w-4 rounded-full border transition-colors ${
-                            requirement.met
-                              ? 'bg-green-600 border-green-600 dark:bg-green-500 dark:border-green-500'
-                              : 'border-muted-foreground'
-                          }`}>
-                            {requirement.met && <Check className="h-3 w-3 text-white" strokeWidth={3} />}
-                          </div>
-                          <span>{requirement.label}</span>
-                        </div>
-                      ))}
-                    </div>
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-[51%] translate-y-[10%] text-muted-foreground hover:text-foreground flex items-center justify-center"
+                  tabIndex={-1}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4 sm:h-5 sm:w-5" />
+                  ) : (
+                    <Eye className="h-4 w-4 sm:h-5 sm:w-5" />
                   )}
-                </div>
-
-                <div className="relative">
-                  <Input
-                    label="Confirm Password"
-                    type={showConfirmPassword ? 'text' : 'password'}
-                    placeholder="••••••••"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    error={errors.confirmPassword}
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-9 text-muted-foreground hover:text-foreground"
-                    tabIndex={-1}
-                  >
-                    {showConfirmPassword ? (
-                      <EyeOff className="h-4 w-4 sm:h-5 sm:w-5" />
-                    ) : (
-                      <Eye className="h-4 w-4 sm:h-5 sm:w-5" />
-                    )}
-                  </button>
-                </div>
-              </FormSection>
-
-              {/* Terms and Conditions */}
-              <div className="space-y-3">
-                <div className="flex items-start gap-3">
-                  <input
-                    type="checkbox"
-                    id="terms"
-                    checked={agreedToTerms}
-                    onChange={(e) => setAgreedToTerms(e.target.checked)}
-                    className="mt-1 h-4 w-4 rounded border-border text-brand focus:ring-brand flex-shrink-0"
-                  />
-                  <label htmlFor="terms" className="text-xs sm:text-sm text-muted-foreground">
-                    I agree to the{' '}
-                    <Link href="/terms" className="text-brand hover:underline font-medium">
-                      Terms of Service
-                    </Link>{' '}
-                    and{' '}
-                    <Link href="/privacy" className="text-brand hover:underline font-medium">
-                      Privacy Policy
-                    </Link>
-                  </label>
-                </div>
-                {errors.terms && (
-                  <p className="text-xs sm:text-sm text-red-500">{errors.terms}</p>
-                )}
+                </button>
               </div>
 
-              <Button
-                type="submit"
-                className="w-full"
-                size="lg"
-                isLoading={isLoading}
-              >
-                <span className="text-sm sm:text-base">Create Account</span>
-              </Button>
-            </form>
+              <div className="relative">
+                <Input
+                  label="Confirm Password"
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  placeholder="••••••••"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  error={errors.confirmPassword}
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-[51%] translate-y-[10%] text-muted-foreground hover:text-foreground flex items-center justify-center"
+                  tabIndex={-1}
+                >
+                  {showConfirmPassword ? (
+                    <EyeOff className="h-4 w-4 sm:h-5 sm:w-5" />
+                  ) : (
+                    <Eye className="h-4 w-4 sm:h-5 sm:w-5" />
+                  )}
+                </button>
+              </div>
+            </div>
 
-            <FormFooter
-              text="Already have an account?"
-              linkText="Sign in"
-              linkHref="/login"
-            />
-          </>
-        )}
+            {/* Password Requirements */}
+            {password && (
+              <div className="space-y-2 bg-muted/50 rounded-lg p-3">
+                {passwordRequirements.map((requirement, index) => (
+                  <div
+                    key={index}
+                    className={`flex items-center gap-2 text-xs sm:text-sm transition-colors ${
+                      requirement.met
+                        ? 'text-green-600 dark:text-green-400'
+                        : 'text-muted-foreground'
+                    }`}
+                  >
+                    <div className={`flex items-center justify-center h-4 w-4 rounded-full border transition-colors ${
+                      requirement.met
+                        ? 'bg-green-600 border-green-600 dark:bg-green-500 dark:border-green-500'
+                        : 'border-muted-foreground'
+                    }`}>
+                      {requirement.met && <Check className="h-3 w-3 text-white" strokeWidth={3} />}
+                    </div>
+                    <span>{requirement.label}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </FormSection>
+
+          {/* Terms and Conditions */}
+          <div className="space-y-3">
+            <div className="flex items-start gap-3">
+              <input
+                type="checkbox"
+                id="terms"
+                checked={agreedToTerms}
+                onChange={(e) => setAgreedToTerms(e.target.checked)}
+                className="mt-1 h-4 w-4 rounded border-border text-brand focus:ring-brand flex-shrink-0"
+              />
+              <label htmlFor="terms" className="text-xs sm:text-sm text-muted-foreground">
+                I agree to the{' '}
+                <Link href="/terms" className="text-brand hover:underline font-medium">
+                  Terms of Service
+                </Link>{' '}
+                and{' '}
+                <Link href="/privacy" className="text-brand hover:underline font-medium">
+                  Privacy Policy
+                </Link>
+              </label>
+            </div>
+            {errors.terms && (
+              <p className="text-xs sm:text-sm text-red-500">{errors.terms}</p>
+            )}
+          </div>
+
+          <Button
+            type="submit"
+            className="w-full"
+            size="lg"
+            isLoading={isLoading}
+          >
+            <span className="text-sm sm:text-base">Create Account</span>
+          </Button>
+        </form>
+
+        <FormFooter
+          text="Already have an account?"
+          linkText="Sign in"
+          linkHref="/login"
+        />
       </div>
 
       <SuccessModal
