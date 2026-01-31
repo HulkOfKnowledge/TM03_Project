@@ -11,7 +11,7 @@ import { useState, FormEvent, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { AuthLayout } from '@/components/auth/AuthLayout';
-import { AuthCarousel } from '@/components/auth/AuthCarousel';
+import { FormHeader, FormSection, FormDivider, FormFooter } from '@/components/auth/FormComponents';
 import { SocialAuthButtons } from '@/components/auth/SocialAuthButtons';
 import { SuccessModal } from '@/components/auth/SuccessModal';
 import { Input } from '@/components/ui/Input';
@@ -159,38 +159,27 @@ function LoginForm() {
   };
 
   return (
-    <AuthLayout carousel={<AuthCarousel />}>
+    <AuthLayout>
       <div className="space-y-6">
-        {/* Header */}
-        <div className="space-y-2">
-          <h1 className="text-3xl font-bold tracking-tight">Hello Again!</h1>
-          <p className="text-muted-foreground">
-            Welcome back to Creduman, login to continue
-          </p>
-        </div>
-
-        {/* Social Auth Buttons */}
-        <SocialAuthButtons
-          onGoogleClick={() => handleSocialAuth('google')}
-          onFacebookClick={() => handleSocialAuth('facebook')}
-          isLoading={isLoading}
+        <FormHeader
+          title="Hello Again!"
+          subtitle="Welcome back to Creduman, login to continue"
         />
 
-        {/* Divider */}
-        <div className="relative">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t"></div>
-          </div>
-          <div className="relative flex justify-center text-sm">
-            <span className="bg-background px-2 text-muted-foreground">
-              Or
-            </span>
-          </div>
-        </div>
+        {/* Social Auth Buttons */}
+        <FormSection>
+          <SocialAuthButtons
+            onGoogleClick={() => handleSocialAuth('google')}
+            onFacebookClick={() => handleSocialAuth('facebook')}
+            isLoading={isLoading}
+          />
+        </FormSection>
+
+        <FormDivider text="Or" />
 
         {/* General Error */}
         {errors.general && (
-          <div className={`rounded-lg p-3 text-sm ${
+          <div className={`rounded-lg p-3 sm:p-4 text-sm ${
             resendSuccess 
               ? 'bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400'
               : 'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400'
@@ -212,18 +201,18 @@ function LoginForm() {
         )}
 
         {/* Email/Password Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <Input
-            label="Email"
-            type="email"
-            placeholder="you@example.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            error={errors.email}
-            required
-          />
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <FormSection>
+            <Input
+              label="Email"
+              type="email"
+              placeholder="you@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              error={errors.email}
+              required
+            />
 
-          <div className="space-y-2">
             <div className="relative">
               <Input
                 label="Password"
@@ -238,37 +227,36 @@ function LoginForm() {
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-3 top-9 text-muted-foreground hover:text-foreground"
+                tabIndex={-1}
               >
                 {showPassword ? (
-                  <EyeOff className="h-5 w-5" />
+                  <EyeOff className="h-4 w-4 sm:h-5 sm:w-5" />
                 ) : (
-                  <Eye className="h-5 w-5" />
+                  <Eye className="h-4 w-4 sm:h-5 sm:w-5" />
                 )}
               </button>
             </div>
-          </div>
+          </FormSection>
 
           <div className="flex items-center justify-end">
             <Link
               href="/forgot-password"
-              className="text-sm text-brand hover:underline"
+              className="text-xs sm:text-sm text-brand hover:underline font-medium"
             >
               Forgot password?
             </Link>
           </div>
 
           <Button type="submit" className="w-full" size="lg" isLoading={isLoading}>
-            Login
+            <span className="text-sm sm:text-base">Login</span>
           </Button>
         </form>
 
-        {/* Sign Up Link */}
-        <p className="text-center text-sm text-muted-foreground">
-          I don&apos;t have an account?{' '}
-          <Link href="/signup" className="text-brand font-medium hover:underline">
-            Create account
-          </Link>
-        </p>
+        <FormFooter
+          text="I don't have an account?"
+          linkText="Create account"
+          linkHref="/signup"
+        />
       </div>
 
       {/* Success Modal */}
@@ -286,7 +274,7 @@ function LoginForm() {
 export default function LoginPage() {
   return (
     <Suspense fallback={
-      <AuthLayout carousel={<AuthCarousel />}>
+      <AuthLayout>
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand"></div>
         </div>

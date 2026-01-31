@@ -10,14 +10,14 @@
 import { useState, FormEvent } from 'react';
 import Link from 'next/link';
 import { AuthLayout } from '@/components/auth/AuthLayout';
-import { AuthCarousel } from '@/components/auth/AuthCarousel';
+import { FormHeader, FormSection, FormDivider, FormFooter } from '@/components/auth/FormComponents';
 import { SocialAuthButtons } from '@/components/auth/SocialAuthButtons';
 import { SuccessModal } from '@/components/auth/SuccessModal';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { createClient } from '@/lib/supabase/client';
 import { signupSchema } from '@/lib/validations';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Check, ArrowLeft } from 'lucide-react';
 
 export default function SignupPage() {
   const [showEmailForm, setShowEmailForm] = useState(false);
@@ -175,19 +175,16 @@ export default function SignupPage() {
   };
 
   return (
-    <AuthLayout carousel={<AuthCarousel />}>
+    <AuthLayout>
       <div className="space-y-6">
-        {/* Header */}
-        <div className="space-y-2">
-          <h1 className="text-3xl font-bold tracking-tight">Create Account</h1>
-          <p className="text-muted-foreground">
-            Start your credit education journey today
-          </p>
-        </div>
+        <FormHeader
+          title="Create Account"
+          subtitle="Start your credit education journey today"
+        />
 
         {/* General Error */}
         {errors.general && (
-          <div className={`rounded-lg p-3 text-sm ${
+          <div className={`rounded-lg p-3 sm:p-4 text-xs sm:text-sm ${
             errors.general.includes('check your email') 
               ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'
               : 'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400'
@@ -199,26 +196,16 @@ export default function SignupPage() {
         {!showEmailForm ? (
           /* Initial View - Social Auth + Email Button */
           <>
-            {/* Social Auth Buttons */}
-            <SocialAuthButtons
-              onGoogleClick={() => handleSocialAuth('google')}
-              onFacebookClick={() => handleSocialAuth('facebook')}
-              isLoading={isLoading}
-            />
+            <FormSection>
+              <SocialAuthButtons
+                onGoogleClick={() => handleSocialAuth('google')}
+                onFacebookClick={() => handleSocialAuth('facebook')}
+                isLoading={isLoading}
+              />
+            </FormSection>
 
-            {/* Divider */}
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t"></div>
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="bg-background px-2 text-muted-foreground">
-                  Or
-                </span>
-              </div>
-            </div>
+            <FormDivider text="Or" />
 
-            {/* Sign up with Email Button */}
             <Button
               type="button"
               onClick={() => setShowEmailForm(true)}
@@ -226,196 +213,175 @@ export default function SignupPage() {
               className="w-full"
               size="lg"
             >
-              Sign up with Email
+              <span className="text-sm sm:text-base">Sign up with Email</span>
             </Button>
 
-            {/* Sign In Link */}
-            <p className="text-center text-sm text-muted-foreground">
-              Already have an account?{' '}
-              <Link href="/login" className="text-brand font-medium hover:underline">
-                Sign in
-              </Link>
-            </p>
+            <FormFooter
+              text="Already have an account?"
+              linkText="Sign in"
+              linkHref="/login"
+            />
           </>
         ) : (
           /* Email Signup Form */
           <>
-            {/* Back Button */}
             <button
               type="button"
               onClick={() => setShowEmailForm(false)}
-              className="flex items-center text-sm text-muted-foreground hover:text-foreground"
+              className="flex items-center text-xs sm:text-sm text-muted-foreground hover:text-foreground"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="mr-2"
-              >
-                <path d="m15 18-6-6 6-6" />
-              </svg>
+              <ArrowLeft className="mr-2 h-4 w-4" />
               Back to options
             </button>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Personal Information */}
+              <FormSection>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <Input
+                    label="First Name"
+                    type="text"
+                    placeholder="John"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    error={errors.first_name}
+                    required
+                  />
+                  <Input
+                    label="Surname"
+                    type="text"
+                    placeholder="Doe"
+                    value={surname}
+                    onChange={(e) => setSurname(e.target.value)}
+                    error={errors.surname}
+                    required
+                  />
+                </div>
+
                 <Input
-                  label="First Name"
-                  type="text"
-                  placeholder="John"
-                  value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
-                  error={errors.first_name}
+                  label="Mobile Number"
+                  type="tel"
+                  placeholder="+1 (555) 123-4567"
+                  value={mobileNumber}
+                  onChange={(e) => setMobileNumber(e.target.value)}
+                  error={errors.mobile_number}
+                  required
+                />
+              </FormSection>
+
+              {/* Account Information */}
+              <FormSection>
+                <Input
+                  label="Email"
+                  type="email"
+                  placeholder="you@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  error={errors.email}
                   required
                 />
 
-                <Input
-                  label="Surname"
-                  type="text"
-                  placeholder="Doe"
-                  value={surname}
-                  onChange={(e) => setSurname(e.target.value)}
-                  error={errors.surname}
-                  required
-                />
-              </div>
+                <div className="space-y-3">
+                  <div className="relative">
+                    <Input
+                      label="Password"
+                      type={showPassword ? 'text' : 'password'}
+                      placeholder="••••••••"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      error={errors.password}
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-9 text-muted-foreground hover:text-foreground"
+                      tabIndex={-1}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4 sm:h-5 sm:w-5" />
+                      ) : (
+                        <Eye className="h-4 w-4 sm:h-5 sm:w-5" />
+                      )}
+                    </button>
+                  </div>
 
-              <Input
-                label="Mobile Number"
-                type="tel"
-                placeholder="+1 (555) 123-4567"
-                value={mobileNumber}
-                onChange={(e) => setMobileNumber(e.target.value)}
-                error={errors.mobile_number}
-                required
-              />
+                  {/* Password Requirements */}
+                  {password && (
+                    <div className="space-y-2 bg-muted/50 rounded-lg p-3">
+                      {passwordRequirements.map((requirement, index) => (
+                        <div
+                          key={index}
+                          className={`flex items-center gap-2 text-xs sm:text-sm transition-colors ${
+                            requirement.met
+                              ? 'text-green-600 dark:text-green-400'
+                              : 'text-muted-foreground'
+                          }`}
+                        >
+                          <div className={`flex items-center justify-center h-4 w-4 rounded-full border transition-colors ${
+                            requirement.met
+                              ? 'bg-green-600 border-green-600 dark:bg-green-500 dark:border-green-500'
+                              : 'border-muted-foreground'
+                          }`}>
+                            {requirement.met && <Check className="h-3 w-3 text-white" strokeWidth={3} />}
+                          </div>
+                          <span>{requirement.label}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
 
-              <Input
-                label="Email"
-                type="email"
-                placeholder="you@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                error={errors.email}
-                required
-              />
-
-              <div className="space-y-2">
                 <div className="relative">
                   <Input
-                    label="Password"
-                    type={showPassword ? 'text' : 'password'}
+                    label="Confirm Password"
+                    type={showConfirmPassword ? 'text' : 'password'}
                     placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    error={errors.password}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    error={errors.confirmPassword}
                     required
                   />
                   <button
                     type="button"
-                    onClick={() => setShowPassword(!showPassword)}
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                     className="absolute right-3 top-9 text-muted-foreground hover:text-foreground"
+                    tabIndex={-1}
                   >
-                    {showPassword ? (
-                      <EyeOff className="h-5 w-5" />
+                    {showConfirmPassword ? (
+                      <EyeOff className="h-4 w-4 sm:h-5 sm:w-5" />
                     ) : (
-                      <Eye className="h-5 w-5" />
+                      <Eye className="h-4 w-4 sm:h-5 sm:w-5" />
                     )}
                   </button>
                 </div>
+              </FormSection>
 
-                {/* Password Requirements Checklist */}
-                {password && (
-                  <div className="space-y-2">
-                    {passwordRequirements.map((requirement, index) => (
-                      <div
-                        key={index}
-                        className={`flex items-center space-x-2 text-sm transition-colors ${
-                          requirement.met
-                            ? 'text-green-600 dark:text-green-400'
-                            : 'text-muted-foreground'
-                        }`}
-                      >
-                        <div
-                          className={`flex items-center justify-center h-4 w-4 rounded-full border transition-colors ${
-                            requirement.met
-                              ? 'bg-green-600 border-green-600 dark:bg-green-500 dark:border-green-500'
-                              : 'border-muted-foreground'
-                          }`}
-                        >
-                          {requirement.met && (
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="white"
-                              strokeWidth="3"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              className="h-3 w-3"
-                            >
-                              <polyline points="20 6 9 17 4 12" />
-                            </svg>
-                          )}
-                        </div>
-                        <span>{requirement.label}</span>
-                      </div>
-                    ))}
-                  </div>
+              {/* Terms and Conditions */}
+              <div className="space-y-3">
+                <div className="flex items-start gap-3">
+                  <input
+                    type="checkbox"
+                    id="terms"
+                    checked={agreedToTerms}
+                    onChange={(e) => setAgreedToTerms(e.target.checked)}
+                    className="mt-1 h-4 w-4 rounded border-border text-brand focus:ring-brand flex-shrink-0"
+                  />
+                  <label htmlFor="terms" className="text-xs sm:text-sm text-muted-foreground">
+                    I agree to the{' '}
+                    <Link href="/terms" className="text-brand hover:underline font-medium">
+                      Terms of Service
+                    </Link>{' '}
+                    and{' '}
+                    <Link href="/privacy" className="text-brand hover:underline font-medium">
+                      Privacy Policy
+                    </Link>
+                  </label>
+                </div>
+                {errors.terms && (
+                  <p className="text-xs sm:text-sm text-red-500">{errors.terms}</p>
                 )}
               </div>
-
-              <div className="relative">
-                <Input
-                  label="Confirm Password"
-                  type={showConfirmPassword ? 'text' : 'password'}
-                  placeholder="••••••••"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  error={errors.confirmPassword}
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-9 text-muted-foreground hover:text-foreground"
-                >
-                  {showConfirmPassword ? (
-                    <EyeOff className="h-5 w-5" />
-                  ) : (
-                    <Eye className="h-5 w-5" />
-                  )}
-                </button>
-              </div>
-
-              <div className="flex items-start space-x-2">
-                <input
-                  type="checkbox"
-                  id="terms"
-                  checked={agreedToTerms}
-                  onChange={(e) => setAgreedToTerms(e.target.checked)}
-                  className="mt-1 h-4 w-4 rounded border-border text-brand focus:ring-brand"
-                />
-                <label htmlFor="terms" className="text-sm text-muted-foreground">
-                  I agree to the{' '}
-                  <Link href="/terms" className="text-brand hover:underline">
-                    Terms of Service
-                  </Link>{' '}
-                  and{' '}
-                  <Link href="/privacy" className="text-brand hover:underline">
-                    Privacy Policy
-                  </Link>
-                </label>
-              </div>
-              {errors.terms && (
-                <p className="text-sm text-red-500">{errors.terms}</p>
-              )}
 
               <Button
                 type="submit"
@@ -423,22 +389,19 @@ export default function SignupPage() {
                 size="lg"
                 isLoading={isLoading}
               >
-                Create Account
+                <span className="text-sm sm:text-base">Create Account</span>
               </Button>
             </form>
 
-            {/* Sign In Link */}
-            <p className="text-center text-sm text-muted-foreground">
-              Already have an account?{' '}
-              <Link href="/login" className="text-brand font-medium hover:underline">
-                Sign in
-              </Link>
-            </p>
+            <FormFooter
+              text="Already have an account?"
+              linkText="Sign in"
+              linkHref="/login"
+            />
           </>
         )}
       </div>
 
-      {/* Success Modal */}
       <SuccessModal
         isOpen={showSuccessModal}
         onClose={() => setShowSuccessModal(false)}
