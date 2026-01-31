@@ -18,6 +18,20 @@ const config = {
       },
     },
     extend: {
+      fontFamily: {
+        clash: ['var(--font-clash-grotesk)', 'system-ui', '-apple-system', 'sans-serif'],
+        sf: ['var(--font-sf-pro)', 'system-ui', '-apple-system', 'sans-serif'],
+        sans: ['var(--font-sf-pro)', 'system-ui', '-apple-system', 'sans-serif'],
+      },
+      fontSize: {
+        'h1': ['30px', { lineHeight: '1.2', fontWeight: '500' }],
+        'h2': ['24px', { lineHeight: '1.3', fontWeight: '500' }],
+        'h3': ['20px', { lineHeight: '1.4', fontWeight: '500' }],
+        'title': ['18px', { lineHeight: '1.4', fontWeight: '500' }],
+        'subtitle': ['16px', { lineHeight: '1.5', fontWeight: '500' }],
+        'body': ['14px', { lineHeight: '1.5', fontWeight: '400' }],
+        'caption': ['12px', { lineHeight: '1.4', fontWeight: '500' }],
+      },
       colors: {
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
