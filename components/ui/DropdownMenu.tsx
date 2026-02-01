@@ -1,15 +1,17 @@
 'use client';
 
-import { useRef, useEffect, ReactNode } from 'react';
+import { useRef, useEffect, ReactNode, useState } from 'react';
 import { cn } from '@/lib/utils';
+import { useDropdownPosition } from '@/hooks/useDropdownPosition';
 
 interface DropdownMenuProps {
   isOpen: boolean;
   onClose: () => void;
   trigger: ReactNode;
   children: ReactNode;
-  align?: 'left' | 'right';
+  align?: 'left' | 'right' | 'auto';
   className?: string;
+  width?: number;
 }
 
 export function DropdownMenu({
@@ -17,10 +19,20 @@ export function DropdownMenu({
   onClose,
   trigger,
   children,
-  align = 'right',
+  align = 'auto',
   className,
+  width = 200,
 }: DropdownMenuProps) {
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLDivElement>(null);
+  const autoPosition = useDropdownPosition(triggerRef, isOpen, { 
+    dropdownWidth: width,
+    direction: 'horizontal' 
+  });
+
+  // Use auto position if align is 'auto', otherwise use the provided align
+  // Invert the position: when space is on the right, align left (so dropdown extends right)
+  const finalAlign = align === 'auto' ? (autoPosition === 'right' ? 'left' : 'right') : align;
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -41,12 +53,12 @@ export function DropdownMenu({
 
   return (
     <div className="relative" ref={dropdownRef}>
-      {trigger}
+      <div ref={triggerRef}>{trigger}</div>
       {isOpen && (
         <div
           className={cn(
             'absolute mt-2 min-w-[200px] rounded-lg border bg-popover shadow-lg z-50',
-            align === 'right' ? 'right-0' : 'left-0',
+            finalAlign === 'right' ? 'right-0' : 'left-0',
             className
           )}
         >
