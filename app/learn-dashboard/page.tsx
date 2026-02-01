@@ -160,7 +160,7 @@ export default function LearnDashboard() {
                         </button>
                         <button
                           onClick={nextLearningPage}
-                          className="h-14 w-14 rounded-full bg-white dark:bg-gray-800 text-black dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center justify-center"
+                          className="h-14 w-14 rounded-full bg-gray-300 dark:bg-gray-800 text-white hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors flex items-center justify-center"
                           aria-label="Next"
                         >
                           <ChevronRight className="h-6 w-6" />
@@ -222,19 +222,21 @@ export default function LearnDashboard() {
 
                   <div className="border-t border-gray-200 dark:border-white/10 pt-12">
                     <div className="flex flex-col items-center justify-center py-16">
-                      <div className="w-24 h-24 rounded-full bg-gray-200 dark:bg-white/10 flex items-center justify-center mb-6">
-                        <CreditCard className="h-12 w-12 text-gray-400 dark:text-white/60" />
+                      <div className="w-24 h-24 rounded-full bg-black/70 dark:bg-white/10 flex items-center justify-center mb-6">
+                        <CreditCard className="h-12 w-12 text-white" />
                       </div>
-                      <p className="text-gray-600 dark:text-gray-400 mb-2">
-                        You haven't added any credit card yet,
-                      </p>
-                      <Link
+                      <p className="text-gray-600 dark:text-gray-400 mb-2 text-center">
+                        You haven't added any credit card yet,<br/>
+                        <Link
                         href="/card-dashboard"
                         className="text-brand hover:text-[#5558E3] font-medium underline transition-colors"
                       >
                         click here
                       </Link>
+                      
+                      
                       <span className="text-gray-600 dark:text-gray-400"> to add a card</span>
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -283,7 +285,7 @@ export default function LearnDashboard() {
                         </button>
                         <button
                           onClick={nextRecommendedPage}
-                          className="h-14 w-14 rounded-full bg-white dark:bg-gray-800 text-black dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center justify-center"
+                          className="h-14 w-14 rounded-full bg-gray-300 dark:bg-gray-800 text-white hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors flex items-center justify-center"
                           aria-label="Next"
                         >
                           <ChevronRight className="h-6 w-6" />
