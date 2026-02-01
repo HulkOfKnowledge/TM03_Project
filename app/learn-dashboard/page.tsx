@@ -91,7 +91,7 @@ export default function LearnDashboard() {
               {/* Learning Path Section */}
               {learningPath.length > 0 && (
                 <section className="mb-16">
-                  <div className="bg-gradient-to-b from-gray-100 to-white dark:from-white/5 dark:to-transparent rounded-[32px] p-8 md:p-12">
+                  <div className="bg-transparent md:bg-gradient-to-b md:from-gray-100 md:to-white md:dark:from-white/5 md:dark:to-transparent rounded-none md:rounded-[32px] p-0 md:p-8 md:md:p-12">
                     <LearningCarousel
                       items={learningPath}
                       onItemClick={handleContentClick}
@@ -103,7 +103,7 @@ export default function LearnDashboard() {
               {/* Beginner's Checklist */}
               {checklistOpen && checklistItems.length > 0 && (
                 <section className="mb-16">
-                  <div className="bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-white/10 rounded-3xl p-8 md:p-10 relative">
+                  <div className="bg-transparent md:bg-gray-50 md:dark:bg-gray-900 border-0 md:border md:border-gray-200 md:dark:border-white/10 rounded-none md:rounded-3xl p-4 md:p-8 md:md:p-10 relative">
                     <button
                       onClick={() => setChecklistOpen(false)}
                       className="absolute top-6 right-6 h-10 w-10 rounded-full bg-gray-200 dark:bg-white/10 hover:bg-gray-300 dark:hover:bg-white/20 flex items-center justify-center transition-colors"
@@ -139,7 +139,7 @@ export default function LearnDashboard() {
 
               {/* Card Overview Section */}
               <section className="mb-16">
-                <div className="bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-white/10 rounded-3xl p-8 md:p-12">
+                <div className="bg-transparent md:bg-gray-50 md:dark:bg-gray-900 border border-gray-200 dark:border-white/10 rounded-3xl p-4 md:p-8 md:md:p-12">
                   <div className="mb-8">
                     <h2 className="text-2xl md:text-3xl font-bold text-brand mb-2">
                       Card Overview
@@ -174,7 +174,7 @@ export default function LearnDashboard() {
               {/* Recommended for you */}
               {recommendedContent.length > 0 && (
                 <section className="mb-16">
-                  <div className="flex items-center justify-between mb-8">
+                  <div className="flex items-center justify-between mb-8 px-4 md:px-0">
                     <div>
                       <h2 className="text-2xl md:text-3xl font-bold text-brand mb-2">
                         Recommended for you
@@ -185,7 +185,7 @@ export default function LearnDashboard() {
                     </div>
                     <Link
                       href="/learn/all"
-                      className="px-6 py-2.5 rounded-xl bg-white dark:bg-gray-800 text-black dark:text-white font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                      className="hidden md:inline-flex px-6 py-2.5 rounded-xl bg-white dark:bg-gray-800 text-black dark:text-white font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                     >
                       View all
                     </Link>
