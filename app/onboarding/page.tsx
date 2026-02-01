@@ -85,7 +85,7 @@ export default function OnboardingPage() {
         // Check if onboarding already completed and fetch profile data
         const { data: profile } = await supabase
           .from('user_profiles')
-          .select('onboarding_completed, preferred_dashboard, first_name, surname, mobile_number')
+          .select('onboarding_completed, preferred_dashboard, first_name, surname, mobile_number, onboarding_stage, onboarding_substep, onboarding_data')
           .eq('id', user.id)
           .single();
 
@@ -99,13 +99,50 @@ export default function OnboardingPage() {
         }
 
         // Prefill form with available data from profile or user metadata
-        setPersonalDetails((prev) => ({
-          ...prev,
+        const restoredPersonalDetails = {
           email: user.email || '',
           firstName: profile?.first_name || user.user_metadata?.first_name || '',
           surname: profile?.surname || user.user_metadata?.surname || '',
           mobileNumber: profile?.mobile_number || user.user_metadata?.mobile_number || '',
-        }));
+          password: '',
+          confirmPassword: '',
+        };
+
+        // Restore saved onboarding progress if available
+        let restoredAccountSetup = {
+          statusInCanada: '',
+          province: '',
+          primaryGoal: '',
+          creditProducts: [],
+          immigrationStatus: '',
+          creditKnowledge: '',
+          currentSituation: [],
+        } as AccountSetup;
+
+        if (profile?.onboarding_data) {
+          const savedData = profile.onboarding_data as any;
+          if (savedData.personalDetails) {
+            Object.assign(restoredPersonalDetails, savedData.personalDetails, {
+              password: '', // Don't restore password for security
+              confirmPassword: '',
+            });
+          }
+          if (savedData.accountSetup) {
+            restoredAccountSetup = savedData.accountSetup;
+          }
+        }
+
+        // Set all state at once
+        setPersonalDetails(restoredPersonalDetails);
+        setAccountSetup(restoredAccountSetup);
+
+        // Restore stage and substep
+        if (profile?.onboarding_stage) {
+          setCurrentStage(profile.onboarding_stage as OnboardingStage);
+        }
+        if (profile?.onboarding_substep) {
+          setFinishSubStep(profile.onboarding_substep as FinishSubStep);
+        }
       }
     };
 
@@ -166,24 +203,34 @@ export default function OnboardingPage() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (currentStage === 'personal') {
       if (validatePersonalDetails()) {
         setCurrentStage('account');
         setErrors({});
+        // Save progress after state update
+        await new Promise(resolve => setTimeout(resolve, 200));
+        await saveProgress();
       }
     } else if (currentStage === 'account') {
       if (validateAccountSetup()) {
         setCurrentStage('finish');
         setFinishSubStep('immigration');
         setErrors({});
+        // Save progress after state update
+        await new Promise(resolve => setTimeout(resolve, 200));
+        await saveProgress();
       }
     } else if (currentStage === 'finish') {
       // Navigate through finish substeps
       if (finishSubStep === 'immigration') {
         setFinishSubStep('knowledge');
+        await new Promise(resolve => setTimeout(resolve, 200));
+        await saveProgress();
       } else if (finishSubStep === 'knowledge') {
         setFinishSubStep('situation');
+        await new Promise(resolve => setTimeout(resolve, 200));
+        await saveProgress();
       } else if (finishSubStep === 'situation') {
         // Last substep - submit
         handleComplete();
@@ -213,15 +260,56 @@ export default function OnboardingPage() {
     }
   };
 
+  // Save onboarding progress to database
+  const saveProgress = async () => {
+    if (!userId) return;
+
+    try {
+      const supabase = createClient();
+      
+      // Get the latest state values
+      const progressData = {
+        onboarding_stage: currentStage,
+        onboarding_substep: finishSubStep,
+        onboarding_data: {
+          personalDetails: {
+            surname: personalDetails.surname,
+            firstName: personalDetails.firstName,
+            mobileNumber: personalDetails.mobileNumber,
+            email: personalDetails.email,
+          },
+          accountSetup,
+        },
+      };
+
+      const { error } = await supabase
+        .from('user_profiles')
+        .update(progressData)
+        .eq('id', userId);
+
+      if (error) {
+        console.error('Failed to save progress:', error);
+      }
+    } catch (error) {
+      console.error('Error saving progress:', error);
+    }
+  };
+
   const handleComplete = async () => {
     setIsLoading(true);
 
     try {
       const supabase = createClient();
 
-      // Determine preferred dashboard based on primary goal
-      const preferredDashboard =
-        accountSetup.primaryGoal === 'learn_credit' ? 'learn' : 'card';
+      // Determine preferred dashboard based on credit knowledge level
+      // Newcomers and beginners go to learn dashboard
+      // Intermediate and advanced users go to card dashboard
+      let preferredDashboard: 'learn' | 'card' = 'learn';
+      
+      if (accountSetup.creditKnowledge === 'intermediate' || 
+          accountSetup.creditKnowledge === 'advanced') {
+        preferredDashboard = 'card';
+      }
 
       // Update password if user edited it
       if (isEditingPassword && personalDetails.password) {
@@ -249,6 +337,10 @@ export default function OnboardingPage() {
           credit_knowledge: accountSetup.creditKnowledge,
           current_situation: accountSetup.currentSituation,
           preferred_dashboard: preferredDashboard,
+          // Clear progress tracking fields
+          onboarding_stage: null,
+          onboarding_substep: null,
+          onboarding_data: null,
         })
         .eq('id', userId);
 
