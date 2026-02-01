@@ -594,6 +594,12 @@ export default function OnboardingPage() {
     { stage: 'finish', label: 'Finish', step: 3 },
   ];
 
+  // Determine the displayed stage - only show 'finish' when on the last substep
+  const displayStage: OnboardingStage = 
+    currentStage === 'finish' && finishSubStep !== 'situation' 
+      ? 'account' 
+      : currentStage;
+
   return (
     <div className="min-h-screen bg-background">
       {/* Navigation */}
@@ -602,7 +608,7 @@ export default function OnboardingPage() {
       {/* Main Content */}
       <div className="pt-24 pb-8 px-4">
         <OnboardingLayout
-          currentStage={currentStage}
+          currentStage={displayStage}
           stages={stages}
           onBack={handleBack}
           showBack={currentStage !== 'personal'}
